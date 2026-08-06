@@ -1,0 +1,15 @@
+# 1. Zensical Build Directory
+site/
+
+# 2. Python Environment & Package Files
+uv.lock
+.venv/
+__pycache__/
+*.pyc
+
+texput.log
+
+
+# 4. OS System Files
+.DS_Store
+Thumbs.db

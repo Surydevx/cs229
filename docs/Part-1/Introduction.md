@@ -1,7 +1,9 @@
 # Machine Learning Notes
 
-**Author:** Suryansh Sharma
+**Author:** Suryansh sharma  
 **Date:** July 2026
+
+---
 
 ## Part 1
 
@@ -18,43 +20,7 @@ This is an example of a supervised learning problem. Suppose we have a dataset g
 | 3000 | 540 |
 | ... | ... |
 
-```latex
-\begin{tikzpicture}
-\begin{axis}[
-    title={housing prices},
-    xlabel={square feet},
-    ylabel={price (in $1000)},
-    xmin=500, xmax=5000,
-    ymin=0, ymax=1000,
-    only marks,
-    mark=x,
-    mark options={color=blue, thick, scale=1.2}
-]
-
-\addplot coordinates {
-    (2104, 400)
-    (1600, 330)
-    (2400, 369)
-    (1416, 232)
-    (3000, 540)
-    (852, 178)
-    (1000, 169)
-    (1200, 299)
-    (1300, 230)
-    (1800, 350)
-    (2000, 345)
-    (2200, 475)
-    (2600, 500)
-    (3100, 599)
-    (3900, 573)
-    (4200, 550)
-    (4478, 699)
-};
-
-\end{axis}
-\end{tikzpicture}
-
-```
+<img src="../assets/images/housing_prices.svg" class="tikz-diagram" alt="Scatter plot of Portland housing prices">
 
 Given we have this data, how can we predict the prices of houses, if we have their living areas?
 
@@ -188,18 +154,15 @@ $$u = \begin{bmatrix} u_1 \\ \vdots \\ u_d \end{bmatrix}, \quad v = \begin{bmatr
 
 1. **Vector Addition:**
 
-$$u + v = \begin{bmatrix} u_1 + v_1 \\ \vdots \\ u_d + v_d \end{bmatrix}$$
+    $$u + v = \begin{bmatrix} u_1 + v_1 \\ \vdots \\ u_d + v_d \end{bmatrix}$$
 
+    Because adding two real numbers always yields a real number, every single element in this new vector is a real number. Therefore, $u + v \in \mathbb{R}^d$ (Closed under addition).
 
-
-Because adding two real numbers always yields a real number, every single element in this new vector is a real number. Therefore, $u + v \in \mathbb{R}^d$ (Closed under addition).
 2. **Scalar Multiplication:**
 
-$$c \cdot u = \begin{bmatrix} c \cdot u_1 \\ \vdots \\ c \cdot u_d \end{bmatrix}$$
+    $$c \cdot u = \begin{bmatrix} c \cdot u_1 \\ \vdots \\ c \cdot u_d \end{bmatrix}$$
 
-
-
-Because multiplying a real number by a scalar yields a real number, $c \cdot u \in \mathbb{R}^d$ (Closed under scalar multiplication).
+    Because multiplying a real number by a scalar yields a real number, $c \cdot u \in \mathbb{R}^d$ (Closed under scalar multiplication).
 
 Because it is closed and inherits all standard algebraic laws of real numbers, we are mathematically permitted to perform linear combinations and define the inner (dot) product.
 
@@ -217,8 +180,7 @@ Used for standard, finite-dimensional coordinate spaces (e.g., $\mathbb{R}^d$). 
 
 * **Formulation:**
 
-$$\langle u, v \rangle = u^T v = \sum_{i=1}^{d} u_i v_i$$
-
+    $$\langle u, v \rangle = u^T v = \sum_{i=1}^{d} u_i v_i$$
 
 * **Geometric Property:** Relates to the angle $\theta$ between vectors via $\langle u, v \rangle = \Vert{}u\Vert{} \Vert{}v\Vert{} \cos(\theta)$. Orthogonal vectors yield an inner product of $0$.
 

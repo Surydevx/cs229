@@ -8,7 +8,7 @@
 
 ## 1. Hypothesis Representation and the Cost Function
 
-To perform supervised learning, we must decide how we are going to represent our hypothesis function $h$ in a computer. "As an initial choice, we approximate $y$ as a **linear combination of the input features**, parameterized by the parameter vector $\theta$.
+To perform supervised learning, we must decide how we are going to represent our hypothesis function $h$ in a computer. As an initial choice, we approximate $y$ as a **linear combination of the input features**, parameterized by the parameter vector $\theta$.
 
 $$ h_\theta(x) = \theta_0 + \theta_1 x_1 + \theta_2 x_2 $$
 
@@ -61,75 +61,7 @@ The easiest way to separate these spaces is to ask: "What do the coordinates mea
 
 To find the optimum parameter vector in parameter space, we evaluate every coordinate using the Cost Function $J(\theta)$. Mathematically, $J$ is a mapping from the $(d+1)$-dimensional parameter space to a 1-dimensional scalar cost value: $J: \mathbb{R}^{d+1} \to \mathbb{R}$.
 
-```Tex
-\documentclass[border=10pt]{standalone}
-\usepackage{pgfplots}
-\pgfplotsset{compat=1.18}
-
-\begin{tikzpicture}
-    \begin{axis}[
-        % --- Axis configuration ---
-        title={3D Convex Cost Function (Squared Error)},
-        xlabel={Parameter $\theta_1$},
-        ylabel={Parameter $\theta_2$},
-        zlabel={Cost $J(\theta)$},
-        % Setting the view angle
-        view={60}{30},
-        % Removing tick labels for a clean placeholder look
-        ticks=none,
-        % General axis styling
-        axis lines=left,
-        grid=major,
-        % Defining the domain of the parameters
-        domain=-5:5,
-        domain y=-5:5,
-        % Samples per dimension for smoothness
-        samples=40,
-        samples y=40,
-    ]
-
-        % --- Drawing the convex bowl surface ---
-        % Using the paraboloid function: J(x,y) = x^2 + y^2 + shift
-        \addplot3[
-            surf,           % Type: surface plot
-            colormap/viridis, % Color scheme (shades of blue to green/yellow)
-            shader=interp,  % Interpolate colors for smoothness
-            opacity=0.8,     % Slight transparency
-            faceted color=black!20, % Very faint grid lines on the surface
-        ] {x^2 + y^2 + 10};
-
-        % --- Marking the global minimum ---
-        % The minimum of x^2 + y^2 + 10 is at (0, 0, 10)
-        \addplot3[
-            only marks,      % Just a point, no lines
-            mark=*,         % Solid circle mark
-            mark size=3pt,   % Size of the mark
-            color=red,      % Color to make it stand out
-            nodes near coords, % Add a label near the coordinate
-            point meta=explicit symbolic, % The label text is explicit
-        ] coordinates {
-            (0, 0, 10) [Global Minimum $\theta^*$]
-        };
-
-        % --- Optional: Draw contour lines on the xy-plane ---
-        \addplot3[
-            contour gnuplot={
-                % Contour levels
-                levels={15, 20, 30, 40},
-                % Draw them at z=0 (plane)
-                draw color=black!50,
-                labels=false,
-            },
-            samples=20,
-            domain=-5:5,
-            domain y=-5:5,
-            % Place on the bottom plane
-            z filter/.code={\pgfmathsetmacro\pgfmathresult{0}},
-        ] {x^2 + y^2 + 10};
-
-    \end{axis}
-\end{tikzpicture}
-```
+<img src="../assets/images/loss-hypersurface.svg" class="tikz-diagram" alt="Squared Error Loss Hypersurface for two parameters">
 
 > **Figure 1: Squared Error Loss Hypersurface**
 
@@ -226,11 +158,11 @@ Since $\alpha$ and the squared norm are strictly positive, this term is strictly
 Evaluating the gradient for a single training example $(x, y)$, our cost simplifies to $J(\theta) = \frac{1}{2} (h_\theta(x) - y)^2$. Applying the chain rule to a specific parameter $\theta_j$:
 
 $$ 
-\begin{align*} 
+\begin{aligned} 
 \frac{\partial J}{\partial \theta_j} &= \frac{\partial}{\partial \theta_j} \left[ \frac{1}{2} (h_\theta(x) - y)^2 \right] \\ 
 &= (h_\theta(x) - y) \cdot \frac{\partial}{\partial \theta_j} \left( \sum_{i=0}^d \theta_i x_i - y \right) \\ 
 &= (h_\theta(x) - y) x_j 
-\end{align*} 
+\end{aligned} 
 $$
 
 Factoring a negative sign out of the residual and substituting the gradient back into the gradient descent algorithm gives the standard LMS update rule:
@@ -254,11 +186,11 @@ $$ \text{Repeat until convergence: } \left\{ \theta_j := \theta_j + \alpha \sum_
 In this algorithm, we repeatedly run through the training set, and each time we encounter a training example, we update the parameters according to the gradient of the error with respect to that single training example only.
 
 $$ 
-\begin{align*}
+\begin{aligned}
 & \text{Repeat until convergence:} \\
 & \quad \text{For } i = 1 \text{ to } n: \\
 & \quad \quad \theta_j := \theta_j + \alpha \left( y^{(i)} - h_\theta(x^{(i)}) \right) x_j^{(i)} \quad \text{(for every } j)
-\end{align*}
+\end{aligned}
 $$
 
 > **Note 1:** Batch gradient descent has to scan through the entire training set before taking a single step, which is computationally prohibitive for large datasets. SGD, conversely, begins optimizing parameters immediately.  

@@ -1,0 +1,47 @@
+/* =========================================
+   1. Fonts & Typography
+   ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@100..900&display=swap');
+
+.md-typeset h1, 
+.md-typeset h2, 
+.md-typeset h3, 
+.md-typeset h4, 
+.md-typeset h5, 
+.md-typeset h6 {
+  font-family: 'Bitcount Prop Single', sans-serif;
+  font-weight: normal;
+}
+
+:root {
+  --md-code-font: 'Roboto Mono', 'Consolas', monospace; 
+}
+
+
+/* =========================================
+   2. Center SVG Diagrams
+   ========================================= */
+img.tikz-diagram {
+  display: block;
+  margin: 2rem auto;
+  max-width: 100%;
+}
+
+[data-md-color-scheme="slate"] img.tikz-diagram {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* =========================================
+   3. Center Markdown Tables
+   ========================================= */
+.md-typeset table:not([class]) {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.md-typeset__table {
+  display: flex;
+  justify-content: center;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
