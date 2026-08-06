@@ -4,6 +4,10 @@ on:
     branches:
       - master
       - main
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+  
 permissions:
   contents: read
   pages: write
@@ -15,13 +19,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/configure-pages@v5
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.x
-      - run: pip install zensical
-      - run: zensical build --clean
+          python-version: "3.14" 
+      - name: Install dependencies
+        run: uv sync 
+      - name: Build site
+        run: uv run zensical build --clean
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
