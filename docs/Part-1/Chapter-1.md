@@ -12,11 +12,14 @@ To perform supervised learning, we must decide how we are going to represent our
 
 $$ h_\theta(x) = \theta_0 + \theta_1 x_1 + \theta_2 x_2 $$
 
+> Note: That we could choose $x_{3}$ such that it would be $x_1^{2}$ i..e feature engineering, we here are  only talking about linear combination of parameters rather than being squared or logarithmic nature of features itself., more on this on appendix.
+
 Here, the $\theta_i$ values are the parameters (also called weights) parameterizing the space of linear functions mapping from $X$ to $Y$. Using vector notation, this equation simplifies to:
 
 $$ h(x) = \sum_{i=0}^{d} \theta_i x_i = \theta^T x $$
 
 Where:
+
 * **$d$** = the total number of features in the dataset.
 * **$x$** = the input feature vector, represented by a column matrix of order $(d+1) \times 1$ (assuming an intercept term $x_0 = 1$).
 * **$\theta$** = the parameter vector, represented by a column matrix of order $(d+1) \times 1$.
@@ -91,8 +94,11 @@ Depending on how much data is used to calculate the gradient at each step, the a
 ## 4. The Mechanics of Gradient Descent
 
 The gradient vector follows two rules:
+
 1. **It Points to the Steepest Ascent:** It points in the direction of the steepest increase of the loss function. Therefore, moving in the opposite direction, $-\nabla_\theta J (\theta)$, yields the direction of steepest descent.
 2. **Its Length is the Slope:** The magnitude dictates steepness. Far from the minimum, the vector is large (bigger steps). Near the bottom, derivatives shrink toward zero, shortening the vector and preventing overshooting.
+
+> Note: The gradient vector of a multivariable function always points into the direction of steepest ascent, i.e. the direction  with maximum slope, the reason is i do not understand yet.
 
 ### 4.1 The Gradient Vector ($\nabla_\theta J(\theta)$)
 
@@ -108,17 +114,253 @@ $$
 \begin{bmatrix} \theta_0 \\ \theta_1 \\ \vdots \\ \theta_d \end{bmatrix}_{\text{new}} := \begin{bmatrix} \theta_0 \\ \theta_1 \\ \vdots \\ \theta_d \end{bmatrix}_{\text{old}} - \alpha \begin{bmatrix} \frac{\partial J}{\partial \theta_0} \\ \frac{\partial J}{\partial \theta_1} \\ \vdots \\ \frac{\partial J}{\partial \theta_d} \end{bmatrix}_{\text{evaluated at } \theta_{\text{old}}}
 $$
 
-<br>
+### Gradient Descent Visualizer
 
-> **Interactive Widget Placeholder: Gradient Descent 3D Visualizer**  
-> **Objective:** Create an interactive 3D surface plot of a convex bowl (squared error cost function) to visualize gradient descent.  
-> **Inputs:**
-> * Learning Rate (Slider)
-> * Starting X coordinate (Slider)
-> * Starting Y coordinate (Slider)
-> * Step/Run Button  
-> 
-> **Behavior:** Render a 3D convex bowl surface ($z = x^2 + y^2$). Show a point representing the current parameters. When the user clicks step/run, animate the point descending the gradient towards the global minimum (0,0,0) based on the learning rate.
+Surface Equation: \( J(\theta_1, \theta_2) = \theta_1^2 + \theta_2^2 \) &nbsp;|&nbsp; Gradient: \( \nabla J = \begin{bmatrix} 2\theta_1 \\ 2\theta_2 \end{bmatrix} \)
+
+<style>
+  .gd-btn { background: transparent; border: 1px solid currentColor; color: inherit; padding: 6px 14px; border-radius: 4px; cursor: pointer; opacity: 0.8; font-family: inherit; }
+  .gd-btn:hover { opacity: 1; }
+  .gd-container { background: transparent; border-radius: 8px; padding: 20px; margin: 10px 0 20px 0; border: 1px solid #ccc; font-family: inherit; }
+  .gd-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; padding: 0 0 15px 0; border-bottom: 1px solid #ccc; margin-bottom: 15px; }
+  .gd-plots { display: flex; flex-wrap: wrap; gap: 10px; width: 100%; }
+  .gd-plot-area { flex: 1 1 300px; height: 400px; min-width: 300px; }
+</style>
+
+<div id="gd-visualizer-container" class="gd-container">
+  <div class="gd-controls">
+    <div>
+      <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 4px;">Learning Rate ($\alpha$): <span class="alpha-val">0.10</span></label>
+      <input type="range" class="alpha" min="0.01" max="0.55" step="0.01" value="0.10" style="cursor: pointer;">
+    </div>
+    <div>
+      <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 4px;">Start $\theta_1$: <span class="t1-val">4.0</span></label>
+      <input type="range" class="startT1" min="-5" max="5" step="0.2" value="4.0" style="cursor: pointer;">
+    </div>
+    <div>
+      <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 4px;">Start $\theta_2$: <span class="t2-val">4.0</span></label>
+      <input type="range" class="startT2" min="-5" max="5" step="0.2" value="4.0" style="cursor: pointer;">
+    </div>
+    <div style="display: flex; gap: 10px; margin-top: 12px;">
+      <button class="gd-btn btn-step">Step</button>
+      <button class="gd-btn btn-run">Run</button>
+      <button class="gd-btn btn-reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="gd-plots">
+    <!-- 3D WebGL Surface -->
+    <div class="gd-plot-3d gd-plot-area"></div>
+    <!-- 2D SVG Parameter Surface (Contour) -->
+    <div class="gd-plot-2d gd-plot-area"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+  
+  function initWidget() {
+    const container = document.getElementById('gd-visualizer-container');
+    if (!container) return;
+
+    const alphaInput = container.querySelector('.alpha');
+    const startT1Input = container.querySelector('.startT1');
+    const startT2Input = container.querySelector('.startT2');
+    const alphaVal = container.querySelector('.alpha-val');
+    const t1Val = container.querySelector('.t1-val');
+    const t2Val = container.querySelector('.t2-val');
+    
+    const btnStep = container.querySelector('.btn-step');
+    const btnRun = container.querySelector('.btn-run');
+    const btnReset = container.querySelector('.btn-reset');
+    
+    const plot3D = container.querySelector('.gd-plot-3d');
+    const plot2D = container.querySelector('.gd-plot-2d');
+
+    let animationTimer = null;
+    let pathT1 = [], pathT2 = [], pathJ = [];
+
+    // Generate grid for J(theta1, theta2)
+    const gridRange = [];
+    for (let i = -5; i <= 5; i += 0.25) gridRange.push(i);
+    
+    const surfaceJ = gridRange.map(t2 => gridRange.map(t1 => t1 * t1 + t2 * t2));
+
+    const surfaceTrace3D = {
+      x: gridRange,
+      y: gridRange,
+      z: surfaceJ,
+      type: 'surface',
+      colorscale: 'Viridis',
+      opacity: 0.85,
+      showscale: false
+    };
+
+    const contourTrace2D = {
+      x: gridRange,
+      y: gridRange,
+      z: surfaceJ,
+      type: 'contour',
+      colorscale: 'Viridis',
+      showscale: false
+    };
+
+    function getPathTrace3D() {
+      return {
+        x: pathT1,
+        y: pathT2,
+        z: pathJ,
+        type: 'scatter3d',
+        mode: 'lines+markers',
+        line: { color: 'red', width: 6 },
+        marker: { size: 4, color: 'darkred' },
+        name: 'Path (3D)'
+      };
+    }
+
+    function getPathTrace2D() {
+      return {
+        x: pathT1,
+        y: pathT2,
+        type: 'scatter',
+        mode: 'lines+markers',
+        line: { color: 'red', width: 3 },
+        marker: { size: 6, color: 'darkred' },
+        name: 'Path (2D)'
+      };
+    }
+
+    const commonLayout = {
+      margin: { l: 30, r: 30, b: 30, t: 30 },
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor: 'rgba(0,0,0,0)',
+      showlegend: false
+    };
+
+    function getLayout3D() {
+      return {
+        ...commonLayout,
+        scene: {
+          xaxis: { title: 'θ₁' },
+          yaxis: { title: 'θ₂' },
+          zaxis: { title: 'J(θ)', range: [0, 50] },
+          camera: { eye: { x: 1.4, y: 1.4, z: 1.2 } }
+        }
+      };
+    }
+
+    function getLayout2D() {
+      return {
+        ...commonLayout,
+        xaxis: { title: 'θ₁', range: [-5, 5] },
+        yaxis: { title: 'θ₂', range: [-5, 5], scaleanchor: 'x', scaleratio: 1 }
+      };
+    }
+
+    // Configure the 2D plot to download as SVG instead of PNG
+    const config2D = {
+      responsive: true,
+      toImageButtonOptions: {
+        format: 'svg',
+        filename: 'gradient_descent_2d_path'
+      }
+    };
+
+    const config3D = { responsive: true };
+
+    function initPlot() {
+      const t1_0 = parseFloat(startT1Input.value);
+      const t2_0 = parseFloat(startT2Input.value);
+      pathT1 = [t1_0];
+      pathT2 = [t2_0];
+      pathJ = [t1_0 * t1_0 + t2_0 * t2_0];
+
+      Plotly.newPlot(plot3D, [surfaceTrace3D, getPathTrace3D()], getLayout3D(), config3D);
+      Plotly.newPlot(plot2D, [contourTrace2D, getPathTrace2D()], getLayout2D(), config2D);
+    }
+
+    function step() {
+      const alpha = parseFloat(alphaInput.value);
+      const currT1 = pathT1[pathT1.length - 1];
+      const currT2 = pathT2[pathT2.length - 1];
+
+      const gradT1 = 2 * currT1;
+      const gradT2 = 2 * currT2;
+
+      const nextT1 = currT1 - alpha * gradT1;
+      const nextT2 = currT2 - alpha * gradT2;
+      const nextJ = nextT1 * nextT1 + nextT2 * nextT2;
+
+      if (isNaN(nextJ) || nextJ > 1000) {
+        stopAnimation();
+        console.warn("Gradient Descent diverged.");
+        return;
+      }
+
+      pathT1 = [...pathT1, nextT1];
+      pathT2 = [...pathT2, nextT2];
+      pathJ = [...pathJ, nextJ];
+
+      Plotly.react(plot3D, [surfaceTrace3D, getPathTrace3D()], getLayout3D());
+      Plotly.react(plot2D, [contourTrace2D, getPathTrace2D()], getLayout2D());
+    }
+
+    function stopAnimation() {
+      if (animationTimer) {
+        clearInterval(animationTimer);
+        animationTimer = null;
+        btnRun.textContent = 'Run';
+      }
+    }
+
+    alphaInput.addEventListener('input', (e) => alphaVal.textContent = parseFloat(e.target.value).toFixed(2));
+    startT1Input.addEventListener('input', (e) => { t1Val.textContent = parseFloat(e.target.value).toFixed(1); reset(); });
+    startT2Input.addEventListener('input', (e) => { t2Val.textContent = parseFloat(e.target.value).toFixed(1); reset(); });
+
+    btnStep.addEventListener('click', () => {
+      stopAnimation();
+      step();
+    });
+
+    btnRun.addEventListener('click', () => {
+      if (animationTimer) {
+        stopAnimation();
+      } else {
+        btnRun.textContent = 'Pause';
+        animationTimer = setInterval(() => {
+          const lastT1 = pathT1[pathT1.length - 1];
+          const lastT2 = pathT2[pathT2.length - 1];
+          
+          if (Math.hypot(lastT1, lastT2) < 0.01 || pathT1.length > 100) {
+            stopAnimation();
+          } else {
+            step();
+          }
+        }, 150);
+      }
+    });
+
+    function reset() {
+      stopAnimation();
+      initPlot();
+    }
+
+    btnReset.addEventListener('click', reset);
+
+    initPlot();
+  }
+
+  if (typeof Plotly === 'undefined') {
+    const script = document.createElement('script');
+    script.src = "https://cdn.plot.ly/plotly-2.27.0.min.js";
+    script.onload = initWidget;
+    document.head.appendChild(script);
+  } else {
+    initWidget();
+  }
+})();
+</script>
 
 ## 5. Mathematical Formulation
 
@@ -322,3 +564,27 @@ $$
 Each column represents a single feature, and each row represents a single sample. The notation $\mathbb{R}^{n \times (d+1)}$ can occasionally cause conceptual friction when compared to vector spaces. 
 
 In pure mathematics, the set of all possible $n \times (d+1)$ real matrices is isomorphic to $\mathbb{R}^{n \cdot (d+1)}$. For example, a $100 \times 3$ matrix holds the exact same informational content as a 300-dimensional vector space ($\mathbb{R}^{100 \times 3} \cong \mathbb{R}^{300}$). Writing $\mathbb{R}^{n \times (d+1)}$ is a specialized shorthand indicating that a flat, high-dimensional vector has been deliberately arranged into a grid to permit matrix multiplication and preserve the dataset's row-column semantics.
+
+### A.3 Feature Engineering and Hypothesis function
+
+when we start concerning ourselves with feature engineering, the definition of linearity and concept of parametrization changes a bit. here's how.
+strictly speaking calling "$y$ is a linear function of $x$" is not accurate with respect to the raw input features after feature engineering.
+
+In machine learning and statistics, **"Linear Model" means linear in the parameters ($\theta$), NOT necessarily linear in the raw input variables ($x$).**
+
+When we apply feature engineering—such as creating polynomial terms ($x_1^2$), interaction terms ($x_1 x_2$), or non-linear transformations ($\log(x_1)$)—the model becomes non-linear with respect to raw $x$, but remains strictly a linear combination of the engineered features.
+
+to formaize this concept of feature engineering we can understnad it as how our raw input $x$ are getting mapped through a feature transformation function $\phi(x)$ (also called basis functions):
+
+$$\phi(x) = \begin{bmatrix} \phi_0(x) \\ \phi_1(x) \\ \phi_2(x) \\ \vdots \\ \phi_k(x) \end{bmatrix} = \begin{bmatrix} 1 \\ x_1 \\ x_1^2 \\ \log(x_2) \end{bmatrix}$$
+
+>The feature trasnformation function can be absurdly unique upon our discretion, though it's also must be well understood w/o any further discussion that two feature transformation function need not be necessarily same.
+
+The general hypothesis function that accounts for feature engineering is formally written as:
+
+$$h_\theta(x) = \langle \theta, \phi(x) \rangle = \theta^T \phi(x) = \sum_{j=0}^{k} \theta_j \phi_j(x)$$
+now if we would be happen to generalize our definition of linearity for linear regression such that it covers both simple inputs and complex feature engineering, it would be as follows:
+
+> _"We approximate $y$ as a linear combination of the feature functions $\phi(x)$, parameterized by the weight vector $\theta$."_
+
+When no feature engineering is applied, $\phi(x) = x$ (the identity mapping), reducing back to the standard $\theta^T x$. This definition preserves linearity in parameters (which keeps the optimization problem convex and solvable) while granting full flexibility for non-linear relationships in raw data.

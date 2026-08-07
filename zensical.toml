@@ -12,7 +12,7 @@ repo_name = "Surydevx/cs229"
 
 nav = [
   { "Introduction" = "Part-1/Introduction.md" },
-  { "chapter -1 " = "Part-1/Chapter-1.md" },
+  { "Chapter - 1 " = "Part-1/Chapter-1.md" },
 ]
 
 extra_css = [
@@ -59,6 +59,13 @@ features = [
   # "toc.follow",
   # "toc.integrate",
 ]
+
+ # To remove the zensical logo 
+[project.extra]
+
+generator = false
+
+
 
 # logo = "assets/logo.png"
 
