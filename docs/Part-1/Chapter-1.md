@@ -1,5 +1,5 @@
 
-# Chapter 1: Linear Regression & Optimization
+# Chapter 1
 
 **Author:** Suryansh sharma  
 **Date:** July 2026
