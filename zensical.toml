@@ -8,12 +8,7 @@ copyright = "Copyright &copy; 2026 surydevx"
 
 repo_url = "https://github.com/Surydevx/cs229"
 repo_name = "Surydevx/cs229"
-# edit_uri = "docs/"
-
-nav = [
-  { "Introduction" = "Part-1/Introduction.md" },
-  { "Chapter - 1 " = "Part-1/Chapter-1.md" },
-]
+edit_uri = "edit/main/docs"
 
 extra_css = [
   "https://tikzjax.com/v1/tikzjax.css",
