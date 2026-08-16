@@ -1,4 +1,4 @@
-# Machine Learning Notes
+# Chapter 0
 
 **Author:** Suryansh sharma  
 **Date:** July 2026
